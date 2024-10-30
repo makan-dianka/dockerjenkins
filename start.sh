@@ -36,6 +36,11 @@ fi
 
 
 if [ $containerExist == 0 ];then
+    # create jenkinsdata folder if not exist
+    if [ ! -d "./jenkinsdata" ];then
+        mkdir ./jenkinsdata
+    fi
+    # create container 
     docker run \
         --name autotests \
         --detach \
