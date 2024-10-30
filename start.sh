@@ -37,8 +37,9 @@ fi
 
 if [ $containerExist == 0 ];then
     # create jenkinsdata folder if not exist
-    if [ ! -d "./jenkinsdata" ];then
-        mkdir ./jenkinsdata
+    if [ ! -d "/jenkinsdata" ];then
+        sudo mkdir /jenkinsdata
+        sudo chown -R $USER:$USER /jenkinsdata
     fi
     # create container 
     docker run \
@@ -51,7 +52,7 @@ if [ $containerExist == 0 ];then
         --publish 8080:8080 \
         --publish 50000:50000 \
         --workdir /var/jenkins_home \
-        --volume ./jenkinsdata:/var/jenkins_home \
+        --volume /jenkinsdata:/var/jenkins_home \
         --volume jenkins-docker-certs:/certs/client:ro \
         "$IMAGE:0.1"
 fi
