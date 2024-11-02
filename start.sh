@@ -34,12 +34,11 @@ else
     containerExist=0
 fi
 
-
 if [ $containerExist == 0 ];then
     # create jenkinsdata folder if not exist
     if [ ! -d "/jenkinsdata" ];then
         sudo mkdir /jenkinsdata
-        sudo chown -R $USER:$USER /jenkinsdata
+        sudo chown -R 1000:1000 /jenkinsdata
     fi
     # create container 
     docker run \
