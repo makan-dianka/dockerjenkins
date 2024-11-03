@@ -53,5 +53,6 @@ if [ $containerExist == 0 ];then
         --workdir /var/jenkins_home \
         --volume /jenkinsdata:/var/jenkins_home \
         --volume jenkins-docker-certs:/certs/client:ro \
+        --network host \
         "$IMAGE:0.1"
 fi
