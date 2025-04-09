@@ -1,0 +1,90 @@
+#    +------------- Docker-compose ---------------------+    
+#    +                                                  +    
+#    +                                                  +    
+#    +                                                  + 
+#    +--------------------------------------------------+    
+
+
+services:
+  jenkins:
+    build: .
+    container_name: jenkins
+    tty: true
+    ports:
+      - 8080:8080
+      - 50000:50000
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    networks:
+      - selenium-grid
+
+
+  selenium-hub:
+    image: selenium/hub:latest
+    container_name: selenium-hub
+    ports:
+      - "${PUBLISH_PORT}:${PUBLISH_PORT}"
+      - "${SUBSCRIBE_PORT}:${SUBSCRIBE_PORT}"
+      - "${HUB_PORT}:${HUB_PORT}"
+    environment:
+      - SE_ENABLE_TRACING=${TRACING}
+    networks:
+      - selenium-grid
+
+  chrome:
+    image: selenium/node-chrome:latest
+    container_name: chrome
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    working_dir: /autotests
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=${PUBLISH_PORT}
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=${SUBSCRIBE_PORT}
+      - SE_ENABLE_TRACING=${TRACING}
+      - SE_NODE_MAX_INSTANCES=${MAX_INSTANCES}
+      - SE_NODE_MAX_SESSIONS=${MAX_SESSIONS}
+    volumes:
+      - /dev/shm:/dev/shm
+      - ../:/autotests
+    ulimits:
+      nofile:
+        soft: 32768
+        hard: 32768
+    ports:
+      - "6900:5900"
+    networks:
+      - selenium-grid
+  
+  firefox:
+    image: selenium/node-firefox:latest
+    container_name: firefox
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    working_dir: /autotests
+    volumes:
+        - /dev/shm:/dev/shm
+        - ../:/autotests
+    ulimits:
+      nofile:
+        soft: 32768
+        hard: 32768
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=${PUBLISH_PORT}
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=${SUBSCRIBE_PORT}
+      - SE_ENABLE_TRACING=${TRACING}
+      - SE_NODE_MAX_INSTANCES=${MAX_INSTANCES}
+      - SE_NODE_MAX_SESSIONS=${MAX_SESSIONS}
+    ports:
+      - "6902:5900"
+    networks:
+      - selenium-grid
+
+networks:
+  selenium-grid:
+
+volumes:
+  jenkins_home:

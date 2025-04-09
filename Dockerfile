@@ -1,23 +1,36 @@
+#    +--------------------- Dockerfile                     ----------------+    
+#    +                                                                     +    
+#    +            name         Role          Describtion                   +    
+#    +          ----------------------------------------------             +    
+#    +          Steph  ' Bug Hunter       '        -         '             +    
+#    +          Makan  ' Bug Hunter       '        -         '             +    
+#    +                 '                  '                  '             +    
+#    +                 '                  '                  '             +    
+#    +                                                                     +    
+#    +---------------------------------------------------------------------+    
+#                                                
+#    >*____dockerfile_____>_____dockerfile______>_______dockerfile_________>*
+
+
+
+
 FROM jenkins/jenkins:lts-jdk17
 
 USER root
+RUN apt update && apt install -y wget
 
-RUN apt-get update && apt-get install wget -y && apt-get install xvfb -y
-RUN apt-get install -y fontconfig && apt-get install -y openjdk-17-jre
+RUN wget -qO- https://deb.nodesource.com/setup_20.x | bash -
+RUN apt install -y nodejs
 
-RUN wget -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
-RUN echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" | tee /etc/apt/sources.list.d/jenkins.list > /dev/null
+RUN mkdir -p /tmp/.X11-unix && chmod -R 1777 /tmp
+RUN apt install -y xvfb
 
+RUN apt install -y fontconfig && apt install -y openjdk-17-jre && apt install -y openjdk-17-jdk
 
-RUN apt-get update && apt-get install jenkins -y
+RUN wget -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian/jenkins.io-2023.key
+RUN echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian binary/" | tee /etc/apt/sources.list.d/jenkins.list > /dev/null
 
-
-# installation of nodejs 
-RUN apt-get install -y curl
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs
-
-
-RUN node -v
-
+RUN apt update 
+RUN apt install jenkins -y
+RUN chown -R 1000:1000 /var/jenkins_home
 USER jenkins
